@@ -1,0 +1,45 @@
+name: test
+
+services:
+   # Kafka
+  zookeeper:
+    image: 'bitnami/zookeeper:3.8.1-debian-11-r12'
+    container_name: zookeeper
+    ports:
+      - "2181:2181"
+    env_file:
+      - ../../../../src/main/resources/env/.env.kafka
+    restart: always
+    networks:
+      -  kafka_net
+  kafka:
+    image: 'bitnami/kafka:3.4.0-debian-11-r9'
+    container_name: kafka
+    env_file:
+      - ../../../../src/main/resources/env/.env.kafka
+    networks:
+      -  kafka_net
+    ports:
+      - "9092:9092"
+      - "9093:9093"
+      - "9997:9997"
+    restart: always
+    depends_on:
+      - zookeeper
+  
+  kafka-ui:
+    image: provectuslabs/kafka-ui:7837622d5eaacae9bade7342f14732967e1b48d0
+    env_file:
+      - ../../../../src/main/resources/env/.env.kafka
+    networks:
+      -  kafka_net
+    ports:
+      - "8091:8080"
+    restart: always  
+    depends_on:
+      - kafka
+
+#
+networks:
+  kafka_net:
+    driver: bridge
